@@ -1,0 +1,51 @@
+#!/bin/bash
+apt-get update -y
+
+apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-get update -y
+apt-get install -y docker-ce
+
+systemctl start docker
+systemctl enable docker
+
+cat > /home/ubuntu/docker-compose.yml <<EOF
+version: "3.8"
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgresdb
+    networks:
+      - golang-network
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+  golang-app:
+    image: mrnanda/goapp-db:1.0
+    container_name: mygoapp
+    networks:
+      - golang-network
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+networks:
+  golang-network:
+    driver: bridge
+EOF
+
+# Set the DB_PASSWORD and start Docker Compose
+export DB_PASSWORD=${DB_PASSWORD}
+export DB_USER=${DB_USER}
+export DB_NAME=${DB_NAME}
+
+sudo docker compose -f /home/ubuntu/docker-compose.yml up -d
