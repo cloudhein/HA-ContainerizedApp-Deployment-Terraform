@@ -27,7 +27,7 @@ resource "aws_lb_listener" "alb_listener" {
 
 resource "aws_lb_target_group" "app_tg" {
   name        = "app-target-group"
-  port        = 80
+  port        = 8080
   protocol    = "HTTP"
   target_type = "instance"
   vpc_id      = data.aws_vpc.default_vpc.id
@@ -36,7 +36,7 @@ resource "aws_lb_target_group" "app_tg" {
     enabled             = true
     interval            = 30
     path                = "/ping"
-    port                = "traffic-port"
+    port                = "8080"
     protocol            = "HTTP"
     healthy_threshold   = 5
     unhealthy_threshold = 2
@@ -49,15 +49,15 @@ resource "aws_lb_target_group" "app_tg" {
   }
 }
 
-resource "aws_lb_target_group_attachment" "test" {
-  count = var.create_instances ? var.instance_count : 0
-
-  target_group_arn = aws_lb_target_group.app_tg.arn
-  target_id        = aws_instance.web[count.index].id
-  port             = 8080
-
-  depends_on = [aws_lb_target_group.app_tg, aws_instance.web]
-}
+#resource "aws_lb_target_group_attachment" "test" {
+#  count = var.create_instances ? var.instance_count : 0
+#
+#  target_group_arn = aws_lb_target_group.app_tg.arn
+#  target_id        = aws_instance.web[count.index].id
+#  port             = 8080
+#
+#  depends_on = [aws_lb_target_group.app_tg, aws_instance.web]
+#}
 
 # Create a Security Group for ALB
 resource "aws_security_group" "alb_sg" {

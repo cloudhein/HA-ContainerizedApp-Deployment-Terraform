@@ -10,11 +10,11 @@ output "subnet_ids" {
   sensitive   = false
 }
 
-output "public_ip" {
-  description = "Public IP addresses of the instances"
-  value       = aws_instance.web[*].public_ip
-  sensitive   = false
-}
+#output "public_ip" {
+#  description = "Public IP addresses of the instances"
+#  value       = aws_instance.web[*].public_ip
+#  sensitive   = false
+#}
 
 output "alb_dns_name" {
   description = "DNS name of the ALB"
